@@ -28,7 +28,7 @@
             canvas.width = img.width;
             canvas.height = img.height;
 
-            // context.drawImage(img, 0, 0);
+            context.drawImage(img, 0, 0);
 
             const imageData = context.getImageData(0, 0, img.width, img.height);
             const pixels = imageData.data;
@@ -48,13 +48,19 @@
               }
             }
 
-            let scaledImgData = [];
+
+            let scaledImgData = new Array(img.width * 2).fill(0).map(() =>
+              new Array(img.height * 2).fill(0).map(() =>
+                new Array(4).fill(0)
+              )
+            );
+
             for (let x = 0; x < img.width; x++) {
               for (let y = 0; y < img.height; y++) {
-                const A = y - 1 >= 0 ? originalImgData[x][y - 1] : -1;
-                const B = x + 1 < img.width ? originalImgData[x + 1][y] : -1;
-                const C = x - 1 >= 0 ? originalImgData[x - 1][y] : -1;
-                const D = y + 1 < img.height ? originalImgData[x][y + 1] : -1;
+                const A = y - 1 >= 0 ? originalImgData[x][y - 1] : [0,0,0];
+                const B = x + 1 < img.width ? originalImgData[x + 1][y] : [0,0,0];
+                const C = x - 1 >= 0 ? originalImgData[x - 1][y] : [0,0,0];
+                const D = y + 1 < img.height ? originalImgData[x][y + 1] : [0,0,0];
                 const P = originalImgData[x][y];
 
                 if (C === A) {
@@ -87,7 +93,7 @@
                 }
               }
             }
-
+            console.log(scaledImgData)
 
             // Regenerates the image from the 3D array
             let newImageData = context.createImageData(img.width, img.height);
