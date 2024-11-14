@@ -80,10 +80,10 @@
                 }
 
                 if (
-                  (arraysEqual(A, B) && arraysEqual(B, C) && !arraysEqual(A, D)) ||
-                  (arraysEqual(A, B) && arraysEqual(B, D) && !arraysEqual(A, C)) ||
-                  (arraysEqual(A, C) && arraysEqual(C, D) && !arraysEqual(A, B)) ||
-                  (arraysEqual(B, C) && arraysEqual(C, D) && !arraysEqual(B, A))
+                  (arraysEqual(A, B) && arraysEqual(B, C) ) ||
+                  (arraysEqual(A, B) && arraysEqual(B, D) ) ||
+                  (arraysEqual(A, C) && arraysEqual(C, D) ) ||
+                  (arraysEqual(B, C) && arraysEqual(C, D) )
                 ) {
                   scaledImgData[x * 2][y * 2] = P;
                   scaledImgData[x * 2 + 1][y * 2] = P;
