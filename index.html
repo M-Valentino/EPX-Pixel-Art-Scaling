@@ -13,6 +13,25 @@
   <canvas id="imageCanvas" style="border: 1px solid black;"></canvas>
 
   <script>
+
+    // Converts image data to a 3D array for easier manipulation
+    function convertTo3DArray(pixels, imgHeight, imgWidth) {
+     let  originalImgData = [];
+      for (let y = 0; y < imgHeight; y++) {
+        originalImgData[y] = [];
+        for (let x = 0; x < imgWidth; x++) {
+          const index = (y * imgWidth + x) * 4;
+          originalImgData[y][x] = [
+            pixels[index],     // Red
+            pixels[index + 1], // Green
+            pixels[index + 2], // Blue
+            pixels[index + 3]  // Alpha
+          ];
+        }
+      }
+      return originalImgData;
+    }
+
     document.getElementById('imageInput').addEventListener('change', function (event) {
       const file = event.target.files[0];
       if (file) {
@@ -34,20 +53,8 @@
             const imageData = context.getImageData(0, 0, img.width, img.height);
             const pixels = imageData.data;
 
-            // Converts image data to a 3D array for easier manipulation
-            let originalImgData = [];
-            for (let y = 0; y < img.height; y++) {
-              originalImgData[y] = [];
-              for (let x = 0; x < img.width; x++) {
-                const index = (y * img.width + x) * 4;
-                originalImgData[y][x] = [
-                  pixels[index],     // Red
-                  pixels[index + 1], // Green
-                  pixels[index + 2], // Blue
-                  pixels[index + 3]  // Alpha
-                ];
-              }
-            }
+            let originalImgData = convertTo3DArray(pixels, img.height, img.width);
+
 
             // Initialize the scaled image data with transparent pixels
             let scaledImgData = Array.from({ length: newHeight }, () =>
@@ -57,7 +64,7 @@
             // Fills scaledImgData with 2x nearest neighbor filter.
             for (let y = 0; y < img.height; y++) {
               for (let x = 0; x < img.width; x++) {
-                scaledImgData[x * 2][y* 2] = originalImgData[x][y];
+                scaledImgData[x * 2][y * 2] = originalImgData[x][y];
                 scaledImgData[x * 2 + 1][y * 2] = originalImgData[x][y];
                 scaledImgData[x * 2][y * 2 + 1] = originalImgData[x][y];
                 scaledImgData[x * 2 + 1][y * 2 + 1] = originalImgData[x][y];
@@ -73,10 +80,10 @@
             for (let y = 0; y < img.height; y++) {
               for (let x = 0; x < img.width; x++) {
                 const P = originalImgData[y][x];
-                const A = y > 0 ? originalImgData[y - 1][x] : [0,0,0,0];
-                const B = x < img.width - 1 ? originalImgData[y][x + 1] : [0,0,0,0];
-                const C = x > 0 ? originalImgData[y][x - 1] : [0,0,0,0];
-                const D = y < img.height - 1 ? originalImgData[y + 1][x] : [0,0,0,0];
+                const A = y > 0 ? originalImgData[y - 1][x] : [0, 0, 0, 0];
+                const B = x < img.width - 1 ? originalImgData[y][x + 1] : [0, 0, 0, 0];
+                const C = x > 0 ? originalImgData[y][x - 1] : [0, 0, 0, 0];
+                const D = y < img.height - 1 ? originalImgData[y + 1][x] : [0, 0, 0, 0];
 
                 if (arraysEqual(C, A)) {
                   scaledImgData[y * 2][x * 2] = A;
@@ -90,7 +97,7 @@
                 if (arraysEqual(B, D)) {
                   scaledImgData[y * 2 + 1][x * 2 + 1] = D;
                 }
-                
+
                 if (
                   (arraysEqual(A, B) && arraysEqual(B, C)) ||
                   (arraysEqual(B, C) && arraysEqual(C, D)) ||
