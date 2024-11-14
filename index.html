@@ -4,21 +4,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image Upload and Display</title>
+  <title>Image Upload and Manipulation</title>
 </head>
 
 <body>
-  <h1>Upload an Image</h1>
-  <input type="file" id="imageUpload" accept="image/*"><br><br>
-  <canvas id="canvas" width="500" height="500"></canvas>
+  <h2>Upload an Image</h2>
+  <input type="file" id="imageInput" accept="image/*"><br><br>
+  <canvas id="imageCanvas" style="border: 1px solid black;"></canvas>
 
   <script>
-    const imageUpload = document.getElementById('imageUpload');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let imgDataArray = [];
-
-    imageUpload.addEventListener('change', (event) => {
+    // Function to handle image upload
+    document.getElementById('imageInput').addEventListener('change', function (event) {
       const file = event.target.files[0];
       if (file) {
         const reader = new FileReader();
@@ -26,21 +22,56 @@
         reader.onload = function (e) {
           const img = new Image();
           img.onload = function () {
+            const canvas = document.getElementById('imageCanvas');
+            const context = canvas.getContext('2d');
+
             canvas.width = img.width;
             canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
 
-            const imageData = ctx.getImageData(0, 0, img.width, img.height);
-            imgDataArray = Array.from(imageData.data);
-            console.log("Pixel data stored in array:", imgDataArray);
+            context.drawImage(img, 0, 0);
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const newImageData = new ImageData(
-              new Uint8ClampedArray(imgDataArray),
-              img.width,
-              img.height
-            );
-            ctx.putImageData(newImageData, 0, 0);
+            const imageData = context.getImageData(0, 0, img.width, img.height);
+            const pixels = imageData.data;
+
+            // Creates a 3D array to store pixel data
+            let originalImgData = [];
+            for (let x = 0; x < img.width; x++) {
+              originalImgData[x] = [];
+              for (let y = 0; y < img.height; y++) {
+                const index = (y * img.width + x) * 4;
+                originalImgData[x][y] = [
+                  pixels[index],     // Red channel
+                  pixels[index + 1], // Green channel
+                  pixels[index + 2], // Blue channel
+                  pixels[index + 3]  // Alpha channel
+                ];
+              }
+            }
+
+            let scaledImgData = [];
+            for (let x = 0; x < img.width; x++) {
+              for (let y = 0; y < img.height; y++) {
+                const A = y - 1 >= 0 ? originalImgData[x][y - 1] : -1;
+                const P = x - 1 >= 0 ? originalImgData[x - 1][y] : -1;
+                const B = x + 1 < img.width ? originalImgData[x + 1][y] : -1;
+                const D = y + 1 < img.height ?  originalImgData[x][y + 1] : -1;
+              }
+            }
+
+
+            // Regenerates the image from the 3D array
+            let newImageData = context.createImageData(img.width, img.height);
+            for (let x = 0; x < img.width; x++) {
+              for (let y = 0; y < img.height; y++) {
+                const index = (y * img.width + x) * 4;
+                newImageData.data[index] = originalImgData[x][y][0];     // Red
+                newImageData.data[index + 1] = originalImgData[x][y][1]; // Green
+                newImageData.data[index + 2] = originalImgData[x][y][2]; // Blue
+                newImageData.data[index + 3] = originalImgData[x][y][3]; // Alpha
+              }
+            }
+
+            context.putImageData(newImageData, 0, 0);
           };
 
           img.src = e.target.result;
