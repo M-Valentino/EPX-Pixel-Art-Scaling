@@ -28,7 +28,7 @@
             canvas.width = img.width;
             canvas.height = img.height;
 
-            context.drawImage(img, 0, 0);
+            // context.drawImage(img, 0, 0);
 
             const imageData = context.getImageData(0, 0, img.width, img.height);
             const pixels = imageData.data;
@@ -52,9 +52,39 @@
             for (let x = 0; x < img.width; x++) {
               for (let y = 0; y < img.height; y++) {
                 const A = y - 1 >= 0 ? originalImgData[x][y - 1] : -1;
-                const P = x - 1 >= 0 ? originalImgData[x - 1][y] : -1;
                 const B = x + 1 < img.width ? originalImgData[x + 1][y] : -1;
-                const D = y + 1 < img.height ?  originalImgData[x][y + 1] : -1;
+                const C = x - 1 >= 0 ? originalImgData[x - 1][y] : -1;
+                const D = y + 1 < img.height ? originalImgData[x][y + 1] : -1;
+                const P = originalImgData[x][y];
+
+                if (C === A) {
+                  // one = A;
+                  scaledImgData[x * 2][y * 2] = A;
+                }
+                if (A === B) {
+                  // two = B;
+                  scaledImgData[x * 2 + 1][y * 2] = B;
+                }
+                if (D === C) {
+                  // three = C;
+                  scaledImgData[x * 2][y * 2 + 1] = C;
+                }
+                if (B === D) {
+                  // four = D;
+                  scaledImgData[x * 2 + 1][y * 2 + 1] = D;
+                }
+                // IF of A, B, C, D, three or more are identical: 1=2=3=4=P
+                if (
+                  (A === B && B === C && A !== D) ||
+                  (A === B && B === D && A !== C) ||
+                  (A === C && C === D && A !== B) ||
+                  (B === C && C === D && B !== A)
+                ) {
+                  scaledImgData[x * 2][y * 2] = P;
+                  scaledImgData[x * 2 + 1][y * 2] = P;
+                  scaledImgData[x * 2][y * 2 + 1] = P;
+                  scaledImgData[x * 2 + 1][y * 2 + 1] = P;
+                }
               }
             }
 
@@ -64,10 +94,10 @@
             for (let x = 0; x < img.width; x++) {
               for (let y = 0; y < img.height; y++) {
                 const index = (y * img.width + x) * 4;
-                newImageData.data[index] = originalImgData[x][y][0];     // Red
-                newImageData.data[index + 1] = originalImgData[x][y][1]; // Green
-                newImageData.data[index + 2] = originalImgData[x][y][2]; // Blue
-                newImageData.data[index + 3] = originalImgData[x][y][3]; // Alpha
+                newImageData.data[index] = scaledImgData[x][y][0];     // Red
+                newImageData.data[index + 1] = scaledImgData[x][y][1]; // Green
+                newImageData.data[index + 2] = scaledImgData[x][y][2]; // Blue
+                newImageData.data[index + 3] = scaledImgData[x][y][3]; // Alpha
               }
             }
 
