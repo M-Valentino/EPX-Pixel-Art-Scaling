@@ -16,7 +16,7 @@
 
     // Converts image data to a 3D array for easier manipulation
     function convertTo3DArray(pixels, imgHeight, imgWidth) {
-     let  originalImgData = [];
+      let originalImgData = [];
       for (let y = 0; y < imgHeight; y++) {
         originalImgData[y] = [];
         for (let x = 0; x < imgWidth; x++) {
@@ -30,6 +30,13 @@
         }
       }
       return originalImgData;
+    }
+
+    // Helper for Initializing scaled image data array with transparent pixels
+    function fillWithTransparentPixels (newWidth, newHeight) {
+      return Array.from({ length: newHeight }, () =>
+        Array.from({ length: newWidth }, () => [0, 0, 0, 0])
+      );
     }
 
     document.getElementById('imageInput').addEventListener('change', function (event) {
@@ -55,11 +62,7 @@
 
             let originalImgData = convertTo3DArray(pixels, img.height, img.width);
 
-
-            // Initialize the scaled image data with transparent pixels
-            let scaledImgData = Array.from({ length: newHeight }, () =>
-              Array.from({ length: newWidth }, () => [0, 0, 0, 0])
-            );
+            let scaledImgData = fillWithTransparentPixels(newWidth, newHeight);
 
             // Fills scaledImgData with 2x nearest neighbor filter.
             for (let y = 0; y < img.height; y++) {
