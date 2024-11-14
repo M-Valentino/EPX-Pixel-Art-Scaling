@@ -81,9 +81,11 @@
                   scaledImgData[y * 2 + 1][x * 2 + 1] = D;
                 }
                 if (
-                  arraysEqual(A, B) && arraysEqual(B, C)||
-                  arraysEqual(B, C) && arraysEqual(C, D) ||
-                  arraysEqual(A, B) && arraysEqual(B, D)
+                  (arraysEqual(A, B) && arraysEqual(B, C)) ||
+                  (arraysEqual(B, C) && arraysEqual(C, D)) ||
+                  (arraysEqual(A, B) && arraysEqual(B, D)) ||
+                  (arraysEqual(A, C) && arraysEqual(C, D)) ||
+                  (arraysEqual(A, B) && arraysEqual(B, C) && arraysEqual(C, D))
                 ) {
                   scaledImgData[y * 2][x * 2] = P;
                   scaledImgData[y * 2][x * 2 + 1] = P;
