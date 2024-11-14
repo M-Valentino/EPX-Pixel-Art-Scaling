@@ -54,6 +54,16 @@
               Array.from({ length: newWidth }, () => [0, 0, 0, 0])
             );
 
+            // Fills scaledImgData with 2x nearest neighbor filter.
+            for (let y = 0; y < img.height; y++) {
+              for (let x = 0; x < img.width; x++) {
+                scaledImgData[x * 2][y* 2] = originalImgData[x][y];
+                scaledImgData[x * 2 + 1][y * 2] = originalImgData[x][y];
+                scaledImgData[x * 2][y * 2 + 1] = originalImgData[x][y];
+                scaledImgData[x * 2 + 1][y * 2 + 1] = originalImgData[x][y];
+              }
+            }
+
             // Helper function to compare two pixel arrays
             function arraysEqual(arr1, arr2) {
               return arr1.length === arr2.length && arr1.every((value, index) => value === arr2[index]);
@@ -62,11 +72,11 @@
             // EPX algorithm
             for (let y = 0; y < img.height; y++) {
               for (let x = 0; x < img.width; x++) {
-                const A = y > 0 ? originalImgData[y - 1][x] : [0, 0, 0, 0];
-                const B = x < img.width - 1 ? originalImgData[y][x + 1] : [0, 0, 0, 0];
-                const C = x > 0 ? originalImgData[y][x - 1] : [0, 0, 0, 0];
-                const D = y < img.height - 1 ? originalImgData[y + 1][x] : [0, 0, 0, 0];
                 const P = originalImgData[y][x];
+                const A = y > 0 ? originalImgData[y - 1][x] : P;
+                const B = x < img.width - 1 ? originalImgData[y][x + 1] : P;
+                const C = x > 0 ? originalImgData[y][x - 1] : P;
+                const D = y < img.height - 1 ? originalImgData[y + 1][x] : P;
 
                 if (arraysEqual(C, A)) {
                   scaledImgData[y * 2][x * 2] = A;
@@ -80,6 +90,7 @@
                 if (arraysEqual(B, D)) {
                   scaledImgData[y * 2 + 1][x * 2 + 1] = D;
                 }
+                
                 if (
                   (arraysEqual(A, B) && arraysEqual(B, C)) ||
                   (arraysEqual(B, C) && arraysEqual(C, D)) ||
