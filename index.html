@@ -13,7 +13,6 @@
   <canvas id="imageCanvas" style="border: 1px solid black;"></canvas>
 
   <script>
-
     // Converts image data to a 3D array for easier manipulation
     function convertTo3DArray(pixels, imgHeight, imgWidth) {
       let originalImgData = [];
@@ -33,10 +32,15 @@
     }
 
     // Helper for Initializing scaled image data array with transparent pixels
-    function fillWithTransparentPixels (newWidth, newHeight) {
+    function fillWithTransparentPixels(newWidth, newHeight) {
       return Array.from({ length: newHeight }, () =>
         Array.from({ length: newWidth }, () => [0, 0, 0, 0])
       );
+    }
+
+    // Helper function to compare two pixel arrays
+    function arraysEqual(arr1, arr2) {
+      return arr1.length === arr2.length && arr1.every((value, index) => value === arr2[index]);
     }
 
     document.getElementById('imageInput').addEventListener('change', function (event) {
@@ -72,11 +76,6 @@
                 scaledImgData[x * 2][y * 2 + 1] = originalImgData[x][y];
                 scaledImgData[x * 2 + 1][y * 2 + 1] = originalImgData[x][y];
               }
-            }
-
-            // Helper function to compare two pixel arrays
-            function arraysEqual(arr1, arr2) {
-              return arr1.length === arr2.length && arr1.every((value, index) => value === arr2[index]);
             }
 
             // EPX algorithm
