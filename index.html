@@ -98,8 +98,23 @@
           }
         }
       }
-      
+
       return epxImg;
+    }
+
+    function convert3DArrImgTo1D(context, width, height, img3DArrToConvert) {
+      let oneDArrayImg = context.createImageData(width, height);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const index = (y * width + x) * 4;
+          oneDArrayImg.data[index] = img3DArrToConvert[y][x][0];
+          oneDArrayImg.data[index + 1] = img3DArrToConvert[y][x][1];
+          oneDArrayImg.data[index + 2] = img3DArrToConvert[y][x][2];
+          oneDArrayImg.data[index + 3] = img3DArrToConvert[y][x][3];
+        }
+      }
+
+      return oneDArrayImg;
     }
 
     document.getElementById('imageInput').addEventListener('change', function (event) {
@@ -127,18 +142,8 @@
             let scaledImgData = fillWithTransparentPixels(newWidth, newHeight);
             scaledImgData = nearestNeighborScale(img.height, img.width, scaledImgData, originalImgData);
             let epxFiltered = applyEPXAlgorithm(img.height, img.width, originalImgData, scaledImgData);
-
-            // Create a new ImageData object for the scaled image
-            let newImageData = context.createImageData(newWidth, newHeight);
-            for (let y = 0; y < newHeight; y++) {
-              for (let x = 0; x < newWidth; x++) {
-                const index = (y * newWidth + x) * 4;
-                newImageData.data[index] = epxFiltered[y][x][0];
-                newImageData.data[index + 1] = epxFiltered[y][x][1];
-                newImageData.data[index + 2] = epxFiltered[y][x][2];
-                newImageData.data[index + 3] = epxFiltered[y][x][3];
-              }
-            }
+            // JS canvas can only draw the image if it is in a 1D array
+            let newImageData = convert3DArrImgTo1D(context, newWidth, newHeight, epxFiltered);
 
             context.putImageData(newImageData, 0, 0);
           };
