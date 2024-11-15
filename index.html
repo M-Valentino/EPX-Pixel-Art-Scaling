@@ -10,7 +10,8 @@
 <body>
   <h2>Upload an Image</h2>
   <input type="file" id="imageInput" accept="image/*"><br><br>
-  <canvas id="imageCanvas" style="border: 1px solid black;"></canvas>
+  <canvas id="nearestNeighbor" style="border: 1px solid black;"></canvas>
+  <canvas id="epxScale" style="border: 1px solid black;"></canvas>
 
   <script>
     // Converts image data to a 3D array for easier manipulation
@@ -125,8 +126,8 @@
         reader.onload = function (e) {
           const img = new Image();
           img.onload = function () {
-            const canvas = document.getElementById('imageCanvas');
-            const context = canvas.getContext('2d');
+            let canvas = document.getElementById('nearestNeighbor');
+            let context = canvas.getContext('2d');
 
             let newWidth = img.width * 2;
             let newHeight = img.height * 2;
@@ -141,11 +142,17 @@
             let originalImgData = convertTo3DArray(pixels, img.height, img.width);
             let scaledImgData = fillWithTransparentPixels(newWidth, newHeight);
             scaledImgData = nearestNeighborScale(img.height, img.width, scaledImgData, originalImgData);
-            let epxFiltered = applyEPXAlgorithm(img.height, img.width, originalImgData, scaledImgData);
             // JS canvas can only draw the image if it is in a 1D array
-            let newImageData = convert3DArrImgTo1D(context, newWidth, newHeight, epxFiltered);
+            let scaledNN1DImg = convert3DArrImgTo1D(context, newWidth, newHeight, scaledImgData);
+            context.putImageData(scaledNN1DImg, 0, 0);
 
-            context.putImageData(newImageData, 0, 0);
+            canvas = document.getElementById('epxScale');
+            context = canvas.getContext('2d');
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            let epxFiltered = applyEPXAlgorithm(img.height, img.width, originalImgData, scaledImgData);
+            let epx1DImg = convert3DArrImgTo1D(context, newWidth, newHeight, epxFiltered);
+            context.putImageData(epx1DImg, 0, 0);
           };
 
           img.src = e.target.result;
